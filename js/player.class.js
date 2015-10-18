@@ -41,10 +41,7 @@ Player = function(x, y, orientation, game) {
     this.runningSpeed = 2.5;
 
     this.isJumping = false;
-    this.collision = {
-        left : false,
-        right : false
-    };
+    this.collisions = [];
 
     this.bullets = [];
     this.canBullet = true;
@@ -240,10 +237,10 @@ Player.prototype.setGravity = function(map) {
 
         if(this.y < element.y) {
             this.fall();
-            console.log(this.y);
+            //console.log(this.y);
         }
         else {
-            console.log('egal');
+            //console.log('egal');
             this.yEgal(element.y);
         }
 
@@ -305,7 +302,9 @@ Player.prototype.mostNear = function(map) {
             for(var j = 0; j < map.elements[i].length; j++) {
                 var element = map.elements[i][j];
 
-                if(element.y < /*map.elements[i][mostNearRow].y*/ nElement.y && element.y >= this.y && (this.x + (this.animatedSprite.width / 2)) >= element.x && (this.x - (this.animatedSprite.width / 2)) <= (element.x + element.sprite.width))
+                this.detectCollision(element, j);
+
+                if(element.y < /*map.elements[i][mostNearRow].y*/ nElement.y && element.y >= this.y && (this.x + (this.animatedSprite.width / 2)) > element.x && (this.x - (this.animatedSprite.width / 2)) < (element.x + element.sprite.width) && element.type == 'block')
                     /*mostNearRow = j;*/ nElement = element;
             }
         }
@@ -317,31 +316,69 @@ Player.prototype.mostNear = function(map) {
 
 Player.prototype.detectCollision = function(element, index) {
     //if(element.type == 'item') {
+
+    var rowCollision = -1;
+
+    if(((this.y + (this.animatedSprite.height / 2)) > (element.y + element.sprite.height) || (this.y - (this.animatedSprite.height / 2)) > element.y) && index > 0) {
+        if(element.type == 'block') {
+            if((this.x + (this.animatedSprite.width / 2)) >= element.x && (this.x - (this.animatedSprite.width / 2)) < element.x) {
+                if(this.rowCollision(element.uid, COLLISION_TYPE.LEFT) < 0) {
+                    //console.log('isNewCollisionLeft');
+                    this.collisions.push(new Collision(COLLISION_TYPE.LEFT, element.uid));
+                    //console.log(element.uid);
+                }
+            }
+            else {
+                rowCollision = this.rowCollision(element.uid, COLLISION_TYPE.LEFT);
+
+                if(rowCollision >= 0) {
+                    //console.log('deleteCollisionLeft');
+                    //console.log(element.uid);
+                    //console.log(rowCollision);
+                    this.collisions.splice(rowCollision, 1);
+                }
+            }
+
+            if((this.x - (this.animatedSprite.width / 2)) <= (element.x + element.sprite.width) && (this.x + (this.animatedSprite.width / 2)) > (element.x + element.sprite.width)) {
+                if(this.rowCollision(element.uid, COLLISION_TYPE.RIGHT) < 0) {
+                    //console.log('isNewCollisionRight');
+                    this.collisions.push(new Collision(COLLISION_TYPE.RIGHT, element.uid));
+                }
+            }
+            else {
+                rowCollision = this.rowCollision(element.uid, COLLISION_TYPE.RIGHT);
+
+                if(rowCollision >= 0) {
+                    //console.log('deleteCollisionRight');
+                    this.collisions.splice(rowCollision, 1);
+                }
+            }
+        }
+
+        if(element.type == 'item' && element.properties.damagePoints > 0) {
+            this.setDamage(element.properties.damagePoints);
+        }
+
+    }
+    else {
+        rowCollision = this.rowCollision(element.uid, COLLISION_TYPE.LEFT);
+
+        if(rowCollision >= 0) {
+            this.collisions.splice(rowCollision, 1);
+        }
+
+        rowCollision = this.rowCollision(element.uid, COLLISION_TYPE.RIGHT);
+
+        if(rowCollision >= 0) {
+            this.collisions.splice(rowCollision, 1);
+        }
+    }
+
     if((this.x + (this.animatedSprite.width / 2)) >= element.x && (this.x - (this.animatedSprite.width / 2))  <= (element.x + element.sprite.width) && (this.y) >= element.y && (this.y) <= (element.y + element.sprite.height) && index > 0) {
         //console.log('collision player');
         if(element.type == 'item' && element.properties.damagePoints > 0) {
             this.setDamage(element.properties.damagePoints);
         }
-
-        if(element.type == 'block' && element.y < this.y) {
-            console.log(element.y + ' - ' + this.y);
-            if((element.x - this.x) > ((this.x - (this.animatedSprite.width / 2)) - (element.x + element.sprite.width))) {
-                console.log('left collision');
-
-                this.collision.left = true;
-                this.collision.right = false;
-            }
-            else {
-                console.log('right collision');
-
-                this.collision.left = false;
-                this.collision.right = true;
-            }
-        }
-    }
-    else {
-        this.collision.left = false;
-        this.collision.right = false;
     }
 
     /*
@@ -370,6 +407,17 @@ Player.prototype.detectCollision = function(element, index) {
     }
 */
     //}
+};
+
+Player.prototype.rowCollision = function(elementUId, type) {
+    var rowCollision = -1;
+
+    for(var i = 0; i < this.collisions.length; i++) {
+        if(this.collisions[i].elementUId == elementUId && this.collisions[i].type == type)
+            rowCollision = i;
+    }
+
+    return rowCollision;
 };
 
 Player.prototype.setDamage = function(damagePoints) {
@@ -404,7 +452,14 @@ Player.prototype.fall = function() {
 };
 
 Player.prototype.forward = function(map) {
-    if(this.collision.left)
+    var isLeftCollision = false;
+
+    for(var i = 0; i < this.collisions.length; i++) {
+        if(this.collisions[i].type == COLLISION_TYPE.LEFT)
+            isLeftCollision = true;
+    }
+
+    if(isLeftCollision)
         return;
 
     if(this.isFalling) {
@@ -418,7 +473,14 @@ Player.prototype.forward = function(map) {
 };
 
 Player.prototype.backward = function(map) {
-    if(this.collision.right)
+    var isRightCollision = false;
+
+    for(var i = 0; i < this.collisions.length; i++) {
+        if(this.collisions[i].type == COLLISION_TYPE.RIGHT)
+            isRightCollision = true;
+    }
+
+    if(isRightCollision)
         return;
 
     if(this.isFalling) {
@@ -451,7 +513,7 @@ Player.prototype.jump = function(map) {
     var jumpInterval = setInterval(function() {
         if(doneJump) {
 
-            console.log(mostNearY);
+            //console.log(mostNearY);
 
             if(that.y >= mostNearY) {
                 //console.log('stop jump');

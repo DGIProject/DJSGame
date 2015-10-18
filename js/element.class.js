@@ -3,6 +3,8 @@
  */
 
 Element = function(x, y, width, texture, type, properties) {
+    this.uid = uid();
+
     this.x = x;
     this.y = y;
 
@@ -19,6 +21,16 @@ Element = function(x, y, width, texture, type, properties) {
 
     this.countTouch = 0;
     this.currentDamage = 0;
+
+    function uid() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    }
 };
 
 Element.prototype.setGraphical = function(game) {
