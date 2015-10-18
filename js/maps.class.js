@@ -110,7 +110,8 @@ Map.prototype.drawElements = function(ratio, game) {
             for(var i = 0; i < this.elements.length; i++) {
                 if(this.elements[i] != undefined) {
                     for(var j = 0; j < this.elements[i].length; j++) {
-                        if(this.elements[i][j].properties.destroyable && this.elements[i][j].countTouch > 0) {
+                        if(this.elements[i][j].properties.destroyable && this.elements[i][j].countTouch > 0 && this.elements[i][j].currentDamage >= this.elements[i][j].properties.health) {
+                            console.log('delete element');
                             game.removeStageElement(this.elements[i][j].sprite);
                             this.elements[i].splice(j, 1);
                         }

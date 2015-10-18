@@ -41,6 +41,10 @@ Player = function(x, y, orientation, game) {
     this.runningSpeed = 2.5;
 
     this.isJumping = false;
+    this.collision = {
+        left : false,
+        right : false
+    };
 
     this.bullets = [];
     this.canBullet = true;
@@ -96,7 +100,7 @@ Player.prototype.setAnimatedSprite = function(game) {
 //Set the sprite's position and add it to the stage
     this.animatedSprite.position.set(this.x, this.y);
     this.animatedSprite.anchor.x = 0.5;
-    this.animatedSprite.anchor.y = 0.5;
+    this.animatedSprite.anchor.y = 1;
     this.animatedSprite.animationSpeed = 0.3;
     this.animatedSprite.play();
 
@@ -166,7 +170,7 @@ Player.prototype.setSprite = function(game) {
 
     // center the sprites anchor point
     this.sprite.anchor.x = 0.5;
-    this.sprite.anchor.y = 0.5;
+    //this.sprite.anchor.y = 0.5;
 
     // move the sprite t the center of the screen
     this.sprite.position.x = this.x;
@@ -209,7 +213,7 @@ Player.prototype.drawPlayer = function(game, map) {
     }
 
     if(this.controller.keys.jump.pressed && !this.isJumping && !this.isFalling) {
-        this.jump();
+        this.jump(map);
     }
 
     if(this.controller.keys.shoot.pressed && this.canBullet) {
@@ -229,6 +233,27 @@ Player.prototype.drawPlayer = function(game, map) {
 };
 
 Player.prototype.setGravity = function(map) {
+    if(!this.isJumping) {
+        var element = this.mostNear(map);
+
+        //console.log(element);
+
+        if(this.y < element.y) {
+            this.fall();
+            console.log(this.y);
+        }
+        else {
+            console.log('egal');
+            this.yEgal(element.y);
+        }
+
+        if(this.y > (element.y - 5)) {
+            this.yEgal(element.y);
+        }
+    }
+
+
+    /*
     var isAboveElement = false;
 
     for(var i = 0; i < map.elements.length; i++) {
@@ -236,21 +261,25 @@ Player.prototype.setGravity = function(map) {
             for(var j = 0; j < map.elements[i].length; j++) {
                 var element = map.elements[i][j];
 
-                this.detectCollision(element);
+                this.detectCollision(element, i);
 
                 for(var a = 0; a < this.bullets.length; a++) {
                     this.bullets[a].detectCollision(element);
                 }
 
-                if(this.x >= element.x && this.x <= (element.x + element.width)) {
-                    isAboveElement = true;
+                //console.log('most near : ' + this.mostNear(map));
+                if(this.x >= element.x && this.x <= (element.x + element.sprite.width) && element.type == 'block' /*&& j == this.mostNear(map)*//*) {
+                    /*
+        isAboveElement = true;
                     //console.log('element here');
 
                     if(!this.isJumping) {
                         if(this.y < element.y) {
+                            console.log('ok');
                             this.fall();
                         }
                         else {
+                            console.log(element.y);
                             this.yEgal(element.y);
                         }
                     }
@@ -264,23 +293,91 @@ Player.prototype.setGravity = function(map) {
 
         this.fall();
     }
+    */
 };
 
-Player.prototype.detectCollision = function(element) {
-    if(element.type == 'item') {
-        if((this.x + (this.animatedSprite.width / 2)) >= element.x && (this.x - (this.animatedSprite.width / 2))  <= (element.x + element.sprite.width) && (this.y + (this.animatedSprite.height / 2)) >= element.y && (this.y - (this.animatedSprite.height / 2)) <= (element.y + element.sprite.height)) {
-            console.log('collision player');
-            if(element.prototype.damagePoints > 0) {
-                this.setDamage(element.prototype.damagePoints);
+Player.prototype.mostNear = function(map) {
+    //var mostNearRow = 0;
+    var nElement = {y: 3000};
+
+    for(var i = 0; i < map.elements.length; i++) {
+        if(map.elements[i] != undefined) {
+            for(var j = 0; j < map.elements[i].length; j++) {
+                var element = map.elements[i][j];
+
+                if(element.y < /*map.elements[i][mostNearRow].y*/ nElement.y && element.y >= this.y && (this.x + (this.animatedSprite.width / 2)) >= element.x && (this.x - (this.animatedSprite.width / 2)) <= (element.x + element.sprite.width))
+                    /*mostNearRow = j;*/ nElement = element;
             }
         }
     }
+
+    //return mostNearRow;
+    return nElement;
+};
+
+Player.prototype.detectCollision = function(element, index) {
+    //if(element.type == 'item') {
+    if((this.x + (this.animatedSprite.width / 2)) >= element.x && (this.x - (this.animatedSprite.width / 2))  <= (element.x + element.sprite.width) && (this.y) >= element.y && (this.y) <= (element.y + element.sprite.height) && index > 0) {
+        //console.log('collision player');
+        if(element.type == 'item' && element.properties.damagePoints > 0) {
+            this.setDamage(element.properties.damagePoints);
+        }
+
+        if(element.type == 'block' && element.y < this.y) {
+            console.log(element.y + ' - ' + this.y);
+            if((element.x - this.x) > ((this.x - (this.animatedSprite.width / 2)) - (element.x + element.sprite.width))) {
+                console.log('left collision');
+
+                this.collision.left = true;
+                this.collision.right = false;
+            }
+            else {
+                console.log('right collision');
+
+                this.collision.left = false;
+                this.collision.right = true;
+            }
+        }
+    }
+    else {
+        this.collision.left = false;
+        this.collision.right = false;
+    }
+
+    /*
+    if((this.y + (this.animatedSprite.height / 2)) >= element.y && (this.y - (this.animatedSprite.height / 2)) <= (element.y + element.sprite.height) && index > 0){
+        if(element.type == 'item' && element.properties.damagePoints > 0 && (this.x + (this.animatedSprite.width / 2)) >= element.x && (this.x - (this.animatedSprite.width / 2))  <= (element.x + element.sprite.width)) {
+            this.setDamage(element.properties.damagePoints);
+        }
+
+        /*
+        if((this.x + (this.animatedSprite.width / 2)) >= element.x) {
+            console.log('left collision');
+        }
+
+        if((this.x - (this.animatedSprite.width / 2))  <= (element.x + element.sprite.width)) {
+            console.log('right collision');
+        }
+        */
+
+        /*
+        if((element.x - this.x) <= 0 && (element.x - this.x) > -element.width) {
+            console.log('left collision');
+        }
+        else if(((this.x - (this.animatedSprite.width / 2)) - (element.x + element.sprite.width)) <= 0) {
+            console.log('right collision');
+        }
+    }
+*/
+    //}
 };
 
 Player.prototype.setDamage = function(damagePoints) {
     if(this.canDamage) {
         this.health -= damagePoints;
         this.canDamage = false;
+
+        console.log(this.health);
 
         var that = this;
 
@@ -307,6 +404,9 @@ Player.prototype.fall = function() {
 };
 
 Player.prototype.forward = function(map) {
+    if(this.collision.left)
+        return;
+
     if(this.isFalling) {
         this.x += this.fallingSpeed;
     }
@@ -318,6 +418,9 @@ Player.prototype.forward = function(map) {
 };
 
 Player.prototype.backward = function(map) {
+    if(this.collision.right)
+        return;
+
     if(this.isFalling) {
         this.x -= this.fallingSpeed;
     }
@@ -328,7 +431,7 @@ Player.prototype.backward = function(map) {
     this.animatedSprite.position.x = this.x;
 };
 
-Player.prototype.jump = function() {
+Player.prototype.jump = function(map) {
     //console.log('jump');
 
     this.isJumping = true;
@@ -337,6 +440,7 @@ Player.prototype.jump = function() {
     this.jumpState = 0;
     var rateJump = 1.8;
     var lastY = this.y;
+    var mostNearY = this.y;
     var posYGo = this.y - 80;
     var doneJump = false;
     var doneFloor = false;
@@ -346,11 +450,16 @@ Player.prototype.jump = function() {
 
     var jumpInterval = setInterval(function() {
         if(doneJump) {
-            if(that.y >= lastY) {
+
+            console.log(mostNearY);
+
+            if(that.y >= mostNearY) {
                 //console.log('stop jump');
 
-                that.y = lastY;
-                that.animatedSprite.position.y = lastY;
+                that.y = mostNearY;
+                that.animatedSprite.position.y = mostNearY;
+
+                //console.log('stopJump');
 
                 that.stopJump();
                 clearInterval(jumpInterval);
@@ -361,6 +470,7 @@ Player.prototype.jump = function() {
                 that.animatedSprite.position.y += rateJump;
 
                 rateJump += 0.02;
+                mostNearY = that.mostNear(map).y - 5;
             }
         }
         else {

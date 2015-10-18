@@ -53,11 +53,13 @@ Bullet.prototype.drawBullet = function(map) {
 };
 
 Bullet.prototype.detectCollision = function(element) {
-    if(element.properties.destroyable || element.type == 'ennemy') {
+    if(element.properties.destroyable) {
         if((this.x + (this.sprite.width / 2)) >= element.x && (this.x - (this.sprite.width / 2))  <= (element.x + element.sprite.width) && (this.y + (this.sprite.height / 2)) >= element.y && (this.y - (this.sprite.height / 2)) <= (element.y + element.sprite.height)) {
             console.log('collision bullet');
+            console.log(element);
             this.isCollision = true;
             element.countTouch++;
+            element.currentDamage += 1.5;
         }
     }
 };

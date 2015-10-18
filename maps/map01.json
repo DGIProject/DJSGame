@@ -17,6 +17,7 @@
     {"x": 600, "y": 250, "width": 75, "texture": "ground_window.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
     {"x": 725, "y": 250, "width": 75, "texture": "ground_window.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
     {"x": 875, "y": 250, "width": 75, "texture": "ground_window.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
-    {"x": 100, "y": 250, "width": 10, "texture": "flower.png", "index": 1, "type": "item", "properties": [{"destroyable" : true, "damagePoints" : 1}]}
+    {"x": 100, "y": 250, "width": 10, "texture": "flower.png", "index": 1, "type": "item", "properties": {"destroyable" : true, "damagePoints" : 1, "health" : 0}},
+    {"x": 150, "y": 230, "width": 10, "texture": "brick.png", "index": 1, "type": "block", "properties": {"destroyable" : true, "damagePoints" : 0, "health": 5}}
   ]
 }

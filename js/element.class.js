@@ -18,6 +18,7 @@ Element = function(x, y, width, texture, type, properties) {
     this.properties = properties;
 
     this.countTouch = 0;
+    this.currentDamage = 0;
 };
 
 Element.prototype.setGraphical = function(game) {
