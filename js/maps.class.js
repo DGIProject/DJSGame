@@ -45,7 +45,10 @@ Map = function(file) {
     this.scrollSpeed = 0.88;
     this.isMovingView = false;
 
+    this.blocks = [];
     this.elements = [];
+    this.cubeSize = 32;
+
     this.far = null;
     this.middle = null;
 };
@@ -89,9 +92,15 @@ Map.prototype.loadMap = function(game) {
     this.player = content.player;
     this.checkPoints = content.checkPoints;
 
+    this.blocks = content.blocks;
+
     for(var i = 0; i < content.elements.length; i++) {
-        var element = new Element(content.elements[i].x, content.elements[i].y, content.elements[i].width, content.elements[i].texture, content.elements[i].type, content.elements[i].properties);
+        var block = this.blocks[content.elements[i].block];
+
+        var element = new Element((content.elements[i].x * this.cubeSize), (content.elements[i].y * this.cubeSize), block.size, block.texture, block.type, block.properties);
         element.setGraphical(game);
+
+        //{"x": 175, "y": 180, "width": 10, "texture": "brick.png", "index": 1, "type": "block", "properties": {"destroyable" : true, "damagePoints" : 0, "health": 5}}
 
         console.log(content.elements[i].index);
 
@@ -110,11 +119,13 @@ Map.prototype.drawElements = function(ratio, game) {
             for(var i = 0; i < this.elements.length; i++) {
                 if(this.elements[i] != undefined) {
                     for(var j = 0; j < this.elements[i].length; j++) {
+                        /*
                         if(this.elements[i][j].properties.destroyable && this.elements[i][j].countTouch > 0 && this.elements[i][j].currentDamage >= this.elements[i][j].properties.health) {
                             console.log('delete element');
                             game.removeStageElement(this.elements[i][j].sprite);
                             this.elements[i].splice(j, 1);
                         }
+                        */
 
                         if(ratio > 0.75 && game.players[a].controller.keys.right.pressed) {
                             //console.log('move less');

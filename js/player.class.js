@@ -10,8 +10,8 @@ var PLAYER_STATUS = {
 
 Player = function(x, y, orientation, game) {
     this.uid = uid();
-    this.x = x;
-    this.y = y;
+    this.x = (x * game.map.cubeSize);
+    this.y = (x * game.map.cubeSize);
 
     this.status = orientation;
 
@@ -36,8 +36,8 @@ Player = function(x, y, orientation, game) {
 
     this.blockCommands = false;
 
-    this.fallingSpeed = 0.2;
-    this.walkingSpeed = 1.8;
+    this.fallingSpeed = 2.0;
+    this.walkingSpeed = 2.1;
     this.runningSpeed = 2.5;
 
     this.isJumping = false;
@@ -235,18 +235,21 @@ Player.prototype.setGravity = function(map) {
 
         //console.log(element);
 
-        if(this.y < element.y) {
+        if(this.y < (element.y - map.cubeSize - 1)) {
             this.fall();
             //console.log(this.y);
         }
         else {
             //console.log('egal');
-            this.yEgal(element.y);
+            this.yEgal(element.y - map.cubeSize - 1);
         }
 
-        if(this.y > (element.y - 5)) {
-            this.yEgal(element.y);
+        /*
+        if(this.y > ((element.y - map.cubeSize) - 5)) {
+            console.log('ok');
+            this.yEgal(element.y - map.cubeSize);
         }
+        */
     }
 
 
@@ -302,7 +305,7 @@ Player.prototype.mostNear = function(map) {
             for(var j = 0; j < map.elements[i].length; j++) {
                 var element = map.elements[i][j];
 
-                this.detectCollision(element, j);
+                this.detectCollision(element, j, map.cubeSize);
 
                 if(element.y < /*map.elements[i][mostNearRow].y*/ nElement.y && element.y >= this.y && (this.x + (this.animatedSprite.width / 2)) > element.x && (this.x - (this.animatedSprite.width / 2)) < (element.x + element.sprite.width) && element.type == 'block')
                     /*mostNearRow = j;*/ nElement = element;
@@ -314,9 +317,30 @@ Player.prototype.mostNear = function(map) {
     return nElement;
 };
 
-Player.prototype.detectCollision = function(element, index) {
+Player.prototype.detectCollision = function(element, index, cubeSize) {
+    var elementX = element.x / cubeSize;
+    var elementLastX = (element.x + element.size) / cubeSize;
+    var playerX = this.x / cubeSize;
+
+    var elementY = element.y / cubeSize;
+    var elementLastY = elementY - 1;
+    var playerY = this.y / cubeSize;
+
+    //console.log(elementX + '-' + elementLastX + '-' + playerX);
+    //console.log(elementY + '-' + elementLastY + '-' + playerY);
+
+    console.log(Math.floor(playerX) + '-' + Math.ceil(playerY));
+
+    if((Math.floor(playerX) - 1) == elementX && Math.ceil(playerY) == elementY && playerX < (elementLastX + 1)) {
+        console.log('left block');
+    }
+
+    //if(elementX < playerX && elementLastX > playerX && elementY >= playerY && elementLastY < playerY)
+        //console.log(elementX + '-' + elementLastX + '-' + playerX + '-' + elementY);
+
     //if(element.type == 'item') {
 
+    /*
     var rowCollision = -1;
 
     if(((this.y + (this.animatedSprite.height / 2)) > (element.y + element.sprite.height) || (this.y - (this.animatedSprite.height / 2)) > element.y) && index > 0) {
@@ -469,7 +493,7 @@ Player.prototype.forward = function(map) {
         this.x += map.isMovingView ? (this.walkingSpeed - map.scrollSpeed) : this.walkingSpeed;
     }
 
-    this.animatedSprite.position.x = this.x;
+    this.animatedSprite.position.x = this.x ;
 };
 
 Player.prototype.backward = function(map) {
@@ -532,7 +556,7 @@ Player.prototype.jump = function(map) {
                 that.animatedSprite.position.y += rateJump;
 
                 rateJump += 0.02;
-                mostNearY = that.mostNear(map).y - 5;
+                mostNearY = that.mostNear(map).y - 37;
             }
         }
         else {

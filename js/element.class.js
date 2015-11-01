@@ -2,7 +2,7 @@
  * Created by Dylan on 16/10/2015.
  */
 
-Element = function(x, y, width, texture, type, properties) {
+Element = function(x, y, size, texture, type, properties) {
     this.uid = uid();
 
     this.x = x;
@@ -10,7 +10,7 @@ Element = function(x, y, width, texture, type, properties) {
 
     this.yBase = this.y;
 
-    this.width = width;
+    this.size = size;
 
     this.type = type;
 
@@ -40,7 +40,7 @@ Element.prototype.setGraphical = function(game) {
 
     // center the sprites anchor point
     //this.sprite.anchor.x = 0.5;
-    //this.sprite.anchor.y = 0.5;
+    this.sprite.anchor.y = 1;
 
     // move the sprite t the center of the screen
     this.sprite.position.x = this.x;
@@ -52,11 +52,13 @@ Element.prototype.setGraphical = function(game) {
 Element.prototype.morePos = function(speedScroll) {
     this.x += speedScroll;
     this.sprite.position.x = this.x;
+    //this.sprite.position.x += speedScroll;
 };
 
 Element.prototype.lessPos = function(speedScroll) {
     this.x -= speedScroll;
     this.sprite.position.x = this.x;
+    //this.sprite.position.x -= speedScroll
 };
 
 Element.prototype.moreJump = function() {

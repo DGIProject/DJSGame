@@ -5,20 +5,22 @@
     "orientation" : 2
   },
   "checkPoints": [
-    {"x": 150, "y": 200},
-    {"x": 325, "y": 200}
+    {"x": 5, "y": 6},
+    {"x": 10, "y": 4}
+  ],
+  "blocks": [
+    {"type": "block", "texture": "brick.png", "size": 32},
+    {"type": "item", "texture": "flower.png", "size": 32}
   ],
   "elements": [
-    {"x": 75, "y": 250, "width": 150, "texture": "ground_start.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
-    {"x": 200, "y": 250, "width": 75, "texture": "ground_window.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
-    {"x": 300, "y": 250, "width": 150, "texture": "ground_start.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
-    {"x": 425, "y": 250, "width": 75, "texture": "ground_window.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
-    {"x": 525, "y": 250, "width": 75, "texture": "ground_window.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
-    {"x": 600, "y": 250, "width": 75, "texture": "ground_window.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
-    {"x": 725, "y": 250, "width": 75, "texture": "ground_window.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
-    {"x": 875, "y": 250, "width": 75, "texture": "ground_window.png", "index": 0, "type": "block", "properties": {"destroyable" : false}},
-    {"x": 100, "y": 210, "width": 10, "texture": "flower.png", "index": 1, "type": "item", "properties": {"destroyable" : true, "damagePoints" : 1, "health" : 0}},
-    {"x": 150, "y": 230, "width": 10, "texture": "brick.png", "index": 1, "type": "block", "properties": {"destroyable" : true, "damagePoints" : 0, "health": 5}},
-    {"x": 175, "y": 180, "width": 10, "texture": "brick.png", "index": 1, "type": "block", "properties": {"destroyable" : true, "damagePoints" : 0, "health": 5}}
+    {"x": 0, "y": 0, "block": 0, "index": 0, "properties": {"destroyable": false}},
+    {"x": 1, "y": 1, "block": 0, "index": 0, "properties": {"destroyable": false}},
+    {"x": 2, "y": 2, "block": 0, "index": 0, "properties": {"destroyable": false}},
+    {"x": 3, "y": 10, "block": 0, "index": 0, "properties": {"destroyable": false}},
+    {"x": 4, "y": 10, "block": 0, "index": 0, "properties": {"destroyable": false}},
+    {"x": 5, "y": 10, "block": 0, "index": 0, "properties": {"destroyable": false}},
+    {"x": 6, "y": 10, "block": 0, "index": 0, "properties": {"destroyable": false}},
+    {"x": 5, "y": 8, "block": 0,"index": 0, "properties": {"destroyable": false}},
+    {"x": 4, "y": 9, "block":  0, "index": 0, "properties": {"destroyable": false}}
   ]
 }
